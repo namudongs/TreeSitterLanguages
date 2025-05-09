@@ -1,86 +1,65 @@
 # TreeSitterLanguages
 
-Languages for the [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) parser generator wrapped in Swift packages.
+이 프로젝트는 [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) 파서 생성기를 Swift 패키지로 래핑한 것으로, [Runestone](https://github.com/simonbs/runestone) 프레임워크와 함께 사용하기 위해 개인적으로 Fork하여 필요한 언어만 포함시킨 버전입니다.
 
-## Motivation
+## 프로젝트 소개
 
-There are two reasons this package exists:
+이 패키지는 원본 TreeSitterLanguages 프로젝트에서 필요한 언어(Swift, JavaScript, TypeScript, Python, Java, C++)만 남기고 수정한 버전입니다. 
+특히 각 언어의 들여쓰기 규칙과 파싱 전략이 개선되었습니다.
 
-1. As an easy way to add several Tree-sitter languages to an app and particularly to an app that uses the [Runestone](https://github.com/simonbs/runestone) framework.
-2. To show how a Tree-sitter language can be wrapped in a Swift package.
+- Swift: 프로토콜, 클래스, 함수 본문, 조건문 등 Swift 언어에 최적화된 들여쓰기 규칙 적용 완료
+- JavaScript/TypeScript: JSX 요소 및 클래스 바디 등의 들여쓰기 처리 개선 예정
+- Python: Python 특유의 들여쓰기 기반 구문 처리 예정
+- Java: Java 코드 스타일에 맞게 들여쓰기 규칙 수정 예정
+- C++: C++ 특유의 문법 구조에 맞게 파싱 규칙 조정 예정
 
-It is not recommended to use this package if you only need to add a few Tree-sitter languages to your app. Instead you should add the languages manually.
+## 설치 방법
 
-## Installation
-
-The languages are distributed using the [Swift Package Manager](https://www.swift.org/package-manager/) as separated libraries in a single Swift package. Install the package in your project by adding it as a dependency in your Package.swift manifest or through "Package Dependencies" in your project settings.
+Swift Package Manager를 통해 설치할 수 있습니다.
 
 ```swift
 let package = Package(
     dependencies: [
-        .package(url: "git@github.com:simonbs/TreeSitterLanguages.git", from: "0.1.0")
+        .package(url: "https://github.com/namudongs/TreeSitterLanguages.git", from: "0.1.0")
     ]
 )
 ```
 
-## Usage
+## 사용 방법
 
-The Swift package contains multiple libraries. Each language is wrapped in its own Swift package so you don't need to import a whole suite of languages in case you only need a few.
+이 패키지는 각 언어별로 3개의 라이브러리를 제공합니다.
 
-The package contains the following three libraries for each language.
-
-|Name|Purpose|
+|이름|용도|
 |-|-|
-|TreeSitter{Language}|The C code for the generated Tree-sitter parser. Each package exposes a function named like `tree_sitter_{language}`.|
-|TreeSitter{Language}Queries|The queries to be used with the language. For more information on queries, please refer to [Tree-sitter's documentation](https://tree-sitter.github.io/tree-sitter/syntax-highlighting#queries). The only reason this is a separate library and not part of the TreeSitter{Language} library is that C code and Swift code cannot be mixed in a library using Swift Package Manager.|
-|TreeSitter{Language}Runestone|Exposes the language to be used with [Runestone](https://github.com/simonbs/runestone). This library depends on the TreeSitter{Language} and TreeSitter{Language}Queries libraries and it is the only library you need to import when using Runestone. The library exposes the language as an extension on [TreeSitterLanguage](https://github.com/simonbs/Runestone/blob/main/Sources/Runestone/Language/TreeSitter/TreeSitterLanguage.swift) (e.g. `TreeSitterLanguage.javaScript`) that's ready to be used in Runestone. It also includes the indentation specification for select languages.|
+|TreeSitter{Language}|Tree-sitter 파서의 C 코드를 포함하며, `tree_sitter_{language}` 함수를 노출합니다.|
+|TreeSitter{Language}Queries|해당 언어에 사용할 쿼리를 제공합니다. 자세한 내용은 [Tree-sitter 문서](https://tree-sitter.github.io/tree-sitter/syntax-highlighting#queries)를 참고하세요.|
+|TreeSitter{Language}Runestone|[Runestone](https://github.com/simonbs/runestone)과 함께 사용할 수 있도록 언어를 노출합니다. 이 라이브러리는 `TreeSitterLanguage.{language}` 형태로 언어를 제공하며, 수정된 들여쓰기 규칙을 포함합니다.|
 
-Furthermore the package contains the TreeSitterLanguagesCommon library which exposes base types from Tree-sitter like `TSLanguage`. This is useful when you need to refer to these types in your source code, for example if you return a `TSLanguage` from a function.
+또한 TreeSitterLanguagesCommon 라이브러리는 `TSLanguage`와 같은 Tree-sitter의 기본 타입을 노출합니다.
 
-## Compatibility
+## 사용 예시
 
-The parser.c file of a language is generated using [tree-sitter-cli](https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md) and a language generated with one version of the CLI may not be compatible with future versions of Tree-sitter. All languages in this repository are kept compatible with the version of Tree-sitter used by my [Runestone](https://github.com/simonbs/runestone) framework.
+Runestone을 사용하는 앱에서 Swift 언어 지원을 추가하려면:
 
-## Acknowledgements
+```swift
+import Runestone
+import TreeSitterSwiftRunestone
 
-The TreeSitterLanguages repository contains files copied from the following repositories. I had originally added these repositories as submodules but it turned out to be very impractical when the package is used with Swift Package Manager because checking out the repository and all the submodules would take a long time and doing so on a slow connection (for example when commuting) would be unbearable.
+let textView = TextView()
+textView.language = .swift
+```
 
-Thanks to all the contributors to these repositories for their great effort in ensuring Tree-sitter supports a wide array of languages.
+## 지원 언어
 
-- [tree-sitter-astro](https://github.com/virchau13/tree-sitter-astro)
-- [tree-sitter-bash](https://github.com/tree-sitter/tree-sitter-bash)
-- [tree-sitter-c](https://github.com/tree-sitter/tree-sitter-c)
-- [tree-sitter-comment](https://github.com/stsewd/tree-sitter-comment)
-- [tree-sitter-c-sharp](https://github.com/tree-sitter/tree-sitter-c-sharp)
-- [tree-sitter-cpp](https://github.com/tree-sitter/tree-sitter-cpp)
-- [tree-sitter-css](https://github.com/tree-sitter/tree-sitter-css)
-- [tree-sitter-elixir](https://github.com/elixir-lang/tree-sitter-elixir)
-- [tree-sitter-elm](https://github.com/elm-tooling/tree-sitter-elm)
-- [tree-sitter-go](https://github.com/tree-sitter/tree-sitter-go)
-- [tree-sitter-haskell](https://github.com/tree-sitter/tree-sitter-haskell)
-- [tree-sitter-html](https://github.com/tree-sitter/tree-sitter-html)
-- [tree-sitter-java](https://github.com/tree-sitter/tree-sitter-java)
-- [tree-sitter-javascript](https://github.com/tree-sitter/tree-sitter-javascript)
-- [tree-sitter-jsdoc](https://github.com/tree-sitter/tree-sitter-jsdoc)
-- [tree-sitter-json](https://github.com/tree-sitter/tree-sitter-json)
-- [tree-sitter-json5](https://github.com/Joakker/tree-sitter-json5)
-- [tree-sitter-julia](https://github.com/tree-sitter/tree-sitter-julia)
-- [tree-sitter-latex](https://github.com/latex-lsp/tree-sitter-latex)
-- [tree-sitter-lua](https://github.com/tjdevries/tree-sitter-lua)
-- [tree-sitter-markdown](https://github.com/MDeiml/tree-sitter-markdown)
-- [tree-sitter-ocaml](https://github.com/tree-sitter/tree-sitter-ocaml)
-- [tree-sitter-perl](https://github.com/ganezdragon/tree-sitter-perl)
-- [tree-sitter-php](https://github.com/tree-sitter/tree-sitter-php)
-- [tree-sitter-python](https://github.com/tree-sitter/tree-sitter-python)
-- [tree-sitter-r](https://github.com/r-lib/tree-sitter-r)
-- [tree-sitter-regex](https://github.com/tree-sitter/tree-sitter-regex)
-- [tree-sitter-ruby](https://github.com/tree-sitter/tree-sitter-ruby)
-- [tree-sitter-rust](https://github.com/tree-sitter/tree-sitter-rust)
-- [tree-sitter-scss](https://github.com/serenadeai/tree-sitter-scss)
-- [tree-sitter-sql](https://github.com/DerekStride/tree-sitter-sql)
-- [tree-sitter-svelte](https://github.com/Himujjal/tree-sitter-svelte)
-- [tree-sitter-swift](https://github.com/alex-pinkus/tree-sitter-swift)
-- [tree-sitter-toml](https://github.com/ikatyang/tree-sitter-toml)
-- [tree-sitter-typescript](https://github.com/tree-sitter/tree-sitter-typescript)
-- [tree-sitter-yaml](https://github.com/ikatyang/tree-sitter-yaml)
-- [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
+이 패키지는 다음 언어들을 지원합니다:
+- Swift
+- JavaScript
+- TypeScript
+- Python
+- Java
+- C++
+
+## 호환성
+
+이 패키지는 Runestone 프레임워크와 호환되는 Tree-sitter 버전을 사용합니다. 
+모든 파서는 `tree-sitter-cli`를 통해 생성되었으며, 필요에 맞게 들여쓰기 전략이 수정되었습니다.

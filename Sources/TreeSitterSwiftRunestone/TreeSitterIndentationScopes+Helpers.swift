@@ -25,13 +25,11 @@ extension TreeSitterIndentationScopes {
         "willset_clause",
         "didset_clause",
       ],
+      inheritIndent: [],
       outdent: [
         "else",
         "}",
         "]",
-        "catch_keyword",
-        "case",
-        "default_keyword",
       ])
   }
 }
